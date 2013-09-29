@@ -10,4 +10,8 @@ a select tag that support filtering options using the key word comes from user i
 一个选择列表，支持通过用户的输入来过滤option
 '''
 	def documentation = "http://grails.org/plugin/select-filter"
+
+	def license = "APACHE"
+	def issueManagement = [system: 'GITHUB', url: 'https://github.com/readilychen/select-filter/issues']
+	def scm = [url: 'https://github.com/readilychen/select-filter']
 }
