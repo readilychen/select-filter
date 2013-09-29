@@ -1,10 +1,9 @@
 import grails.converters.*
 
-class UtilsTagLib {	
-
+class UtilsTagLib {
 
 	//没有选择值时，会提交空字符串""
-	def selectFilter = { attrs, body ->			
+	def selectFilter = { attrs, body ->
 
 		def domain = attrs['domain']  								//指定筛选的domain类
 		def list = attrs['from'] 									//存放对象列表 from优先于domain
@@ -12,7 +11,7 @@ class UtilsTagLib {
 		def val = attrs['val']										//提交的值字段
 
 		def name = attrs['name']									//表单提交变量名
-		def value = attrs['value'] != null ? attrs['value'] : "" 	// input读入/提交的值
+		def value = attrs['value'] ?: "" 	               // input读入/提交的值
 
 		def size = attrs['size'] as int								//显示的列表行数
 		def keyword = attrs['keyword']  							//domain时 用keyword筛选 显示的文字字段
@@ -21,17 +20,17 @@ class UtilsTagLib {
 		def opval = attrs['optionKey']								//提交的值字段  (兼容g:select标签)
 		def opkey = attrs['optionValue']							//显示的文字字段(兼容g:select标签)
 		def id = attrs['id']										//id
-		
+
 		//def noSelKey = ""											//目前不支持
 		//def noSelVal = ""											//目前不支持
 
 		//*********************外部接口结束***************
-		def __name = name + new Date().time 						//标示每一个selectFilter标签
+		def __name = name + System.currentTimeMillis() 		//标示每一个selectFilter标签
 		size = size<2 ? 2 : size									//防止单个列表时无法触发onchange事件
 
-		def __id = id ? id : "" + new Date().time
+		def __id = id ?: String.valueOf(System.currentTimeMillis())
 
-		def dataList = []	
+		def dataList = []
 
 		if(opkey) {
 			key = opkey
@@ -46,33 +45,32 @@ class UtilsTagLib {
 				list = c.list {
 					if(keyword) {
 						ilike(key,"%${keyword}%")
-					}				
+					}
 				}
-			}	
-		}			
+			}
+		}
 
-		list.collect {	
+		list.collect {
 			dataList.add(key: it[key], value: it[val])
-		}		
+		}
 
 		def dataListJson = dataList as JSON
 
-				
         out.println """
 	        		<p style='display:inline;'  id='_select_filter_div_${__name}'>
 	        			<input id='_select_filter_input_${__name}' value='输入关键字筛选' type='text' >
 	     				<input  id='_select_filter_value_${__name}' type='hidden' value='${value}' name='${name}' >
-		 				<select id='${__id}'  size='${size}' width='100'> 
+		 				<select id='${__id}'  size='${size}' width='100'>
 	    				</select>
-	    			</p> 
+	    			</p>
 
-        			<script type='text/javascript'>	  
+        			<script type='text/javascript'>
         				( function() {
 							var word_input = document.getElementById('_select_filter_input_${__name}');
         					//var select = document.getElementById('_select_filter_select_${__name}');
         					var select = document.getElementById('${__id}');
         					var value_input = document.getElementById('_select_filter_value_${__name}');
-        				//	var value_input = document.getElementById('${__id}');        					
+        				//	var value_input = document.getElementById('${__id}');
         					var div = document.getElementById('_select_filter_div_${__name}');
 
         					function loadElement(name) {
@@ -80,11 +78,11 @@ class UtilsTagLib {
         					 	//var select = document.getElementById('_select_filter_select_${__name}');
         					var select = document.getElementById('${__id}');
         					var value_input = document.getElementById('_select_filter_value_${__name}');
-        				//	var value_input = document.getElementById('${__id}');           
+        				//	var value_input = document.getElementById('${__id}');
         					 	div = document.getElementById('_select_filter_div_' + name);
         					}
 
-		        			function filter(name) {		        				
+		        			function filter(name) {
 		        			    loadElement(name);
 		        				var dataList = window.__select_filter_dataMap[name];
 							    var keyword = word_input.value;
@@ -93,9 +91,9 @@ class UtilsTagLib {
 							    	if(dataList[i].key.indexOf(keyword)!=-1){
 							    		showList.push(dataList[i]);
 							    	}
-							    }						    
-							    						    
-							   	
+							    }
+
+
 							   	select.innerHTML = '';
 
 							   	if(select) {
@@ -105,9 +103,9 @@ class UtilsTagLib {
 								    	opt.innerHTML = showList[i].key ;
 								    	if(showList[i].value=='${value}') {
 								    		opt.selected = 'selected';
-								    	}						
-								    	select.appendChild(opt);   
-								    }; 
+								    	}
+								    	select.appendChild(opt);
+								    };
 								}
 							}
 
@@ -118,13 +116,12 @@ class UtilsTagLib {
 		        					window.__select_filter_dataMap ={};
 	        					}
 
-		        				
 		        				if(!window.__select_filter_dataMap[name]) {
 		        					window.__select_filter_dataMap[name] = eval(${dataListJson});
 		        				}
 
-		        				var dataList = window.__select_filter_dataMap[name];	        				
-		        				
+		        				var dataList = window.__select_filter_dataMap[name];
+
 		        				if(value_input && value_input.value!='') {
 			        				for (var i=0; i<dataList.length ;i++) {
 			        					if(dataList[i].value == value_input.value){
@@ -137,7 +134,7 @@ class UtilsTagLib {
 
 		        				if(typeof(window.__select_filter_nodeMap) === 'undefined') {
 		        					window.__select_filter_nodeMap = {} ;
-	        					}      
+	        					}
 
 	        					word_input.onblur = function(){
 	        						setValue(name);
@@ -158,9 +155,9 @@ class UtilsTagLib {
 							}
 
 							function setValue(name) {
-								loadElement(name);	
+								loadElement(name);
 		        				var dataList = window.__select_filter_dataMap[name];
-		        				
+
 		        				if(word_input.value=='') {
 		        					value_input.value = '';  //如果在word_input.value==''时 word_input失去焦点  认为用户没有选择 提交''
 		        				}
@@ -173,7 +170,7 @@ class UtilsTagLib {
 			        						break;
 			        					}
 			        				}
-		        				}			        				 				
+		        				}
 							}
 
 							function show(name) {
@@ -181,7 +178,7 @@ class UtilsTagLib {
 								var select = window.__select_filter_nodeMap[name];
 								if(word_input.value && word_input.value.indexOf('输入关键字筛选')!=-1) {
 									word_input.value = '';
-								}								
+								}
 								if(select) {
 									select.style.display = 'inline';
 									div.removeChild(select);
@@ -189,7 +186,7 @@ class UtilsTagLib {
 								}
 							}
 
-							function hide(name) {	
+							function hide(name) {
 								loadElement(name);
 								window.__select_filter_nodeMap[name] = select;
 								select.style.display = 'none';
@@ -202,13 +199,13 @@ class UtilsTagLib {
 								loadElement(name);
 								var lastIndex = select.selectedIndex;
 								word_input.value = select.options[lastIndex].innerHTML;
-								value_input.value = select.value;							
-							} 
-							 
-        					loadFilter('${__name}');	
-	        			}) ();	        				
+								value_input.value = select.value;
+							}
+
+        					loadFilter('${__name}');
+	        			}) ();
 	        		</script>
-   			
+
 	        	"""
 	}
 }
