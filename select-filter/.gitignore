@@ -1,0 +1,18 @@
+/web-app/WEB-INF
+
+# IDE support files
+/.classpath
+/.launch
+/.project
+/.settings
+
+*.log
+
+*.zip
+plugin.xml
+
+# "temporary" build files
+/target
+
+# other
+*.iws
